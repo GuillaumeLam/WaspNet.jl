@@ -1,5 +1,5 @@
 """
-    LIF{T<:Number}<:AbstractNeuron 
+    LIF{T<:Number}<:AbstractNeuron
 
 Contains the necessary parameters for describing a Leaky Integrate-and-Fire (LIF) neuron as well as the current membrane potential of the neuron.
 
@@ -14,15 +14,15 @@ Contains the necessary parameters for describing a Leaky Integrate-and-Fire (LIF
 Different relative orders of threshold voltage, resting voltage, and reset voltage will produce different dynamics.
 The default values of resting > threshold >> reset allows for a baseline firing rate that can be modulated up or down.
 """
-@with_kw struct LIF{T<:Number}<:AbstractNeuron 
-    τ::T = 8.         
-    R::T = 10.      
-    θ::T = -55.     
+@with_kw struct LIF{T<:Number}<:AbstractNeuron
+    τ::T = 8.
+    R::T = 10.
+    θ::T = -55.
 
     vSS::T = -50.
-    v0::T = -100. 
+    v0::T = -100.
     state::T = -100.
-    output::T = 0.     
+    output::T = 0.
 end
 
 """
@@ -49,7 +49,7 @@ function update(neuron::LIF, input_update, dt, t)
         output = 1. # Binary output
     end
 
-    return (output, LIF(neuron.τ, neuron.R, neuron.θ, neuron.vSS, neuron.v0, state, output))
+    return (output, LIF(neuron.τ, neuron.R, neuron.θ, neuron.vSS, neuron.v0, typeof(neuron.τ)(state), typeof(neuron.τ)(output)))
 end
 
 function reset(neuron::LIF)

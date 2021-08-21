@@ -6,7 +6,7 @@ Contains constituent `Layer`s, orchestrates the movement of signals between `Lay
 # Fields
 - `layers::Array{AbstractLayer,1}`: Array of `Layer`s ordered from 1 to N for N layers
 - `N_in::Int`: Number of input dimensions to the first `Layer`
-- `prev_outputs::Vector`: Vector of vectors sized to hold the output from each `Layer` 
+- `prev_outputs::Vector`: Vector of vectors sized to hold the output from each `Layer`
 """
 mutable struct Network<:AbstractNetwork
     layers::Array{AbstractLayer, 1}
@@ -39,15 +39,22 @@ mutable struct Network<:AbstractNetwork
 end
 
 """
-    function Network(layers, N_in::Int) 
+    function Network(layers, N_in::Int)
 
 Given an array of `Layer`s and the dimensionality of the input to the network, make a new `Network` which is a copy of each `Layer` with weights converted to `BlockArray` format.
 
-The output dimensionality is in 
-""" 
-function Network(layers, N_in::Int) 
+The output dimensionality is in
+"""
+function Network(layers, N_in::Int)
     neurons_per_layer = [length(l.neurons) for l in layers]
     prev_outputs = [zeros(N_in), [zeros(j) for j in neurons_per_layer]...]
+
+    return Network(layers, N_in, prev_outputs)
+end
+
+function Network(layers, N_in::Int; type)
+    neurons_per_layer = [length(l.neurons) for l in layers]
+    prev_outputs = [zeros(type, N_in), [zeros(type, j) for j in neurons_per_layer]...]
 
     return Network(layers, N_in, prev_outputs)
 end
@@ -55,7 +62,7 @@ end
 """
     function Network(layers::Array{L, 1}) where L <: AbstractLayer
 
-Given an array of `Layer`s, constructs the `Network` resulting from connecting the `Layer`s with their specified `conn`s. 
+Given an array of `Layer`s, constructs the `Network` resulting from connecting the `Layer`s with their specified `conn`s.
 
 The input dimensionality is inferred from the size of the weight matrices for the first `Layer` in the `layers` array.
 """

@@ -3,7 +3,7 @@
         L<:AbstractNeuron, N<:Number, A<:AbstractArray{N,1}, M<:Union{AbstractArray{N,2}, Array{AbstractArray{N,2},1}
         }<:AbstractLayer
 
-Track a population of neurons of one `AbstractNeuron` type, the other `Layer`s those neurons are connected to, and the incoming weights. 
+Track a population of neurons of one `AbstractNeuron` type, the other `Layer`s those neurons are connected to, and the incoming weights.
 
 # Fields
 - `neurons::Array{L,1}`: an array of neurons for the `Layer`
@@ -13,10 +13,10 @@ Track a population of neurons of one `AbstractNeuron` type, the other `Layer`s t
 - `output::Array{N,1}`: a pre-allocated array for staging outputs from this layer
 """
 struct Layer{
-    L<:AbstractNeuron, N<:Number, A<:AbstractArray{N,1}, M<:Union{AbstractArray{N,2}, Array{<:AbstractArray{N,2},1}} 
+    L<:AbstractNeuron, N<:Number, A<:AbstractArray{N,1}, M<:Union{AbstractArray{N,2}, Array{<:AbstractArray{N,2},1}}
     }<:AbstractLayer
     neurons::Array{L,1}
-    W::M 
+    W::M
     conns::Array{Int,1}
     N_neurons::Int
     input::A
@@ -24,7 +24,7 @@ struct Layer{
 
     # Default constructor, parametric. All Layers use this constructor eventually
     function Layer{L,N,A,M}(
-        neurons::Array{L,1}, W::M, conns::Array{Int,1}, N_neurons::Int, input::Array{N,1}, output::Array{N,1} 
+        neurons::Array{L,1}, W::M, conns::Array{Int,1}, N_neurons::Int, input::Array{N,1}, output::Array{N,1}
         ) where {L<:AbstractNeuron, N<:Number, A<:AbstractArray{N,1}, M<:Union{AbstractArray{N,2}, Array{<:AbstractArray{N,2},1}}}
 
         return new{L,N,A,M}(neurons, W, conns, N_neurons, input, output)
@@ -56,7 +56,15 @@ function Layer(neurons, W, conns = Array{Int, 1}(undef, 0))
     N_neurons = length(neurons)
     input = zeros(N_neurons)
     output = zeros(N_neurons)
-    return Layer(neurons, W, conns, N_neurons, input, output) 
+    return Layer(neurons, W, conns, N_neurons, input, output)
+end
+
+function Layer(neurons, W, conns = Array{Int, 1}(undef, 0); type)
+
+    N_neurons = length(neurons)
+    input = zeros(type, N_neurons)
+    output = zeros(type, N_neurons)
+    return Layer(neurons, W, conns, N_neurons, input, output)
 end
 
 function Layer(neurons, W::AbstractBlockArray)
@@ -78,7 +86,7 @@ This (default) method assumes a feed-forward, non-BlockArray representation for 
 - `t`: the time at the start of the current time step
 """
 function update!(l::Layer{L,N,A,M}, input, dt, t) where {L,N,A,M<:AbstractArray{N,2}}
-    if isempty(l.conns) 
+    if isempty(l.conns)
         mul!(l.input, l.W, input[1])
     elseif !isempty(l.conns)
         conn = l.conns[1] # should only have one connection
@@ -95,7 +103,7 @@ end
 """
     function update!(l::Layer{L,N,A,M}, input, dt, t)
 
-Evolve the state of all of the neurons in the `Layer` a duration `dt`, starting from time `t`, subject to a set of inputs from all `Network` layers in `input`. 
+Evolve the state of all of the neurons in the `Layer` a duration `dt`, starting from time `t`, subject to a set of inputs from all `Network` layers in `input`.
 
 Not all arrays within `input` are used; we iterate over `l.conn` to select the appropriate inputs to this `Layer`, and the corresponding `Block`s from `l.W` are used to calculate the net `Layer` input.
 """
@@ -113,7 +121,7 @@ end
 """
     function update!(l::Layer{L,N,A,M}, input, dt, t) where {L,N,A, M<:AbstractArray{T,1}}
 
-Evolve the state of all of the neurons in the `Layer` a duration `dt`, starting from time `t`, subject to a set of inputs from all `Network` layers in `input`. 
+Evolve the state of all of the neurons in the `Layer` a duration `dt`, starting from time `t`, subject to a set of inputs from all `Network` layers in `input`.
 
 Not all arrays within `input` are used; we iterate over `l.conn` to select the appropriate inputs to this `Layer`, and the corresponding `Block`s from `l.W` are used to calculate the net `Layer` input.
 """
@@ -149,7 +157,7 @@ end
 """
     get_neuron_outputs(l::AbstractLayer)
 
-Return the current output of `l`'s constituent neurons 
+Return the current output of `l`'s constituent neurons
 """
 function get_neuron_outputs(l::AbstractLayer)
     return l.output
